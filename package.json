@@ -8,15 +8,16 @@
     "server": "node app.js",
     "lint": "standard"
   },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "octokit": "^4.1.1"
+  },
   "devDependencies": {
+    "@types/node": "^22.13.5",
     "smee-client": "^2.0.1",
     "standard": "^17.0.0",
     "tsx": "^4.19.3",
     "typescript": "^5.7.3"
-  },
-  "dependencies": {
-    "dotenv": "^16.0.3",
-    "octokit": "^4.1.1"
   },
   "engines": {
     "node": ">=20.0.0",
