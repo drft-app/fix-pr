@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "start": "tsx app.ts",
+    "dev": "tsx watch app.ts",
     "server": "node app.js",
     "lint": "standard"
   },
