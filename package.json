@@ -4,14 +4,14 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "start": "ts-node app.ts",
+    "start": "tsx app.ts",
     "server": "node app.js",
     "lint": "standard"
   },
   "devDependencies": {
     "smee-client": "^2.0.1",
     "standard": "^17.0.0",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.19.3",
     "typescript": "^5.7.3"
   },
   "dependencies": {
