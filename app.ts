@@ -46,7 +46,7 @@ app.webhooks.on(
     const repo = payload.repository.name;
     const ref = payload.pull_request.head.ref;
     console.log(owner, repo, ref);
-    const workflowId = "fix-pr";
+    const workflowId = "fix-pr.yml";
     try {
       await octokit.rest.actions.createWorkflowDispatch({
         owner,
