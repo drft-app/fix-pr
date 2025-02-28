@@ -45,15 +45,20 @@ app.webhooks.on(
     const owner = payload.repository.owner.login;
     const repo = payload.repository.name;
     const ref = payload.pull_request.head.ref;
-    await octokit.rest.actions.createWorkflowDispatch({
-      owner,
-      repo,
-      workflow_id: "fix-pr",
-      ref,
-      inputs: {
-        comment: payload.review.body,
-      },
-    });
+    console.log(owner, repo, ref);
+    try {
+      await octokit.rest.actions.createWorkflowDispatch({
+        owner,
+        repo,
+        workflow_id: "fix-pr",
+        ref,
+        inputs: {
+          comment: payload.review.body,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
   }
 );
 
