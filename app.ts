@@ -13,7 +13,6 @@ const privateKeyPath = process.env.PRIVATE_KEY_PATH!;
 const privateKey = fs.readFileSync(privateKeyPath, "utf8");
 const secret = process.env.WEBHOOK_SECRET!;
 const enterpriseHostname = process.env.ENTERPRISE_HOSTNAME;
-const messageForNewPRs = fs.readFileSync("./message.md", "utf8");
 
 // Create an authenticated Octokit client authenticated as a GitHub App
 const app = new App({
