@@ -1,0 +1,16 @@
+name: Fix PR
+id: fix-pr
+
+on:
+  workflow_dispatch:
+    inputs:
+      comment:
+        required: true
+        type: string
+
+jobs:
+  fix-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo comment
+        run: echo ${{ inputs.comment }}

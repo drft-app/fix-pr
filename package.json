@@ -4,19 +4,20 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "start": "ts-node app.ts",
+    "dev": "tsx watch app.ts",
     "server": "node app.js",
     "lint": "standard"
-  },
-  "devDependencies": {
-    "smee-client": "^2.0.1",
-    "standard": "^17.0.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.7.3"
   },
   "dependencies": {
     "dotenv": "^16.0.3",
     "octokit": "^4.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.5",
+    "smee-client": "^2.0.1",
+    "standard": "^17.0.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
   },
   "engines": {
     "node": ">=20.0.0",
