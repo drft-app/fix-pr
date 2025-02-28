@@ -4,18 +4,27 @@ import http from 'http'
 import { Octokit, App } from 'octokit'
 import { createNodeMiddleware } from '@octokit/webhooks'
 
+/**
+ * GitHub Pull Request Bot
+ * 
+ * This application automatically responds to new pull requests with a customizable message.
+ * It uses GitHub App installation tokens for secure API access.
+ */
+
 // Load environment variables from .env file
 dotenv.config()
 
-// Set configured values
+// Configuration values
 const appId = process.env.APP_ID
 const privateKeyPath = process.env.PRIVATE_KEY_PATH
 const privateKey = fs.readFileSync(privateKeyPath, 'utf8')
 const secret = process.env.WEBHOOK_SECRET
 const enterpriseHostname = process.env.ENTERPRISE_HOSTNAME
+const port = process.env.PORT || 3000
+const webhookPath = '/api/webhook'
 const messageForNewPRs = fs.readFileSync('./message.md', 'utf8')
 
-// Create an authenticated Octokit client authenticated as a GitHub App
+// Create an authenticated GitHub App instance
 const app = new App({
   appId,
   privateKey,
@@ -29,50 +38,71 @@ const app = new App({
   })
 })
 
-// Optional: Get & log the authenticated app's name
-const { data } = await app.octokit.request('/app')
+// Get & log the authenticated app's name
+async function logAppInfo() {
+  try {
+    const { data } = await app.octokit.request('/app')
+    app.octokit.log.info(`Authenticated as '${data.name}'`)
+    return data.name
+  } catch (error) {
+    app.octokit.log.error(`Failed to get app info: ${error.message}`)
+    return null
+  }
+}
 
-// Read more about custom logging: https://github.com/octokit/core.js#logging
-app.octokit.log.debug(`Authenticated as '${data.name}'`)
-
-// Subscribe to the "pull_request.opened" webhook event
+// Handle new pull request events
 app.webhooks.on('pull_request.opened', async ({ octokit, payload }) => {
-  console.log(`Received a pull request event for #${payload.pull_request.number}`)
+  const prNumber = payload.pull_request.number
+  const repoOwner = payload.repository.owner.login
+  const repoName = payload.repository.name
+  
+  console.log(`Received a new pull request #${prNumber} in ${repoOwner}/${repoName}`)
+  
   try {
     await octokit.rest.issues.createComment({
-      owner: payload.repository.owner.login,
-      repo: payload.repository.name,
-      issue_number: payload.pull_request.number,
+      owner: repoOwner,
+      repo: repoName,
+      issue_number: prNumber,
       body: messageForNewPRs
     })
+    console.log(`Successfully commented on PR #${prNumber}`)
   } catch (error) {
     if (error.response) {
-      console.error(`Error! Status: ${error.response.status}. Message: ${error.response.data.message}`)
+      console.error(`API Error! Status: ${error.response.status}. Message: ${error.response.data.message}`)
     } else {
-      console.error(error)
+      console.error(`Error commenting on PR: ${error.message}`)
     }
   }
 })
 
-// Optional: Handle errors
+// Error handling for webhook processing
 app.webhooks.onError((error) => {
   if (error.name === 'AggregateError') {
-    // Log Secret verification errors
-    console.log(`Error processing request: ${error.event}`)
+    console.error(`Webhook processing error: ${error.event}`)
   } else {
-    console.log(error)
+    console.error(`Unexpected error: ${error.message}`)
   }
 })
 
-// Launch a web server to listen for GitHub webhooks
-const port = process.env.PORT || 3000
-const path = '/api/webhook'
-const localWebhookUrl = `http://localhost:${port}${path}`
+// Start the server
+async function startServer() {
+  // Log app info
+  const appName = await logAppInfo()
+  
+  // Create and start the server
+  const localWebhookUrl = `http://localhost:${port}${webhookPath}`
+  const middleware = createNodeMiddleware(app.webhooks, { path: webhookPath })
+  
+  http.createServer(middleware).listen(port, () => {
+    console.log(`🚀 ${appName || 'GitHub App'} server started!`)
+    console.log(`🔔 Webhook URL: ${localWebhookUrl}`)
+    console.log(`📝 PR message loaded (${messageForNewPRs.length} characters)`)
+    console.log('Press Ctrl + C to quit.')
+  })
+}
 
-// See https://github.com/octokit/webhooks.js/#createnodemiddleware for all options
-const middleware = createNodeMiddleware(app.webhooks, { path })
-
-http.createServer(middleware).listen(port, () => {
-  console.log(`Server is listening for events at: ${localWebhookUrl}`)
-  console.log('Press Ctrl + C to quit.')
+// Initialize the application
+startServer().catch(error => {
+  console.error('Failed to start server:', error)
+  process.exit(1)
 })
