@@ -33,31 +33,57 @@ const app = new App({
 const { data } = await app.octokit.request("/app");
 
 // Read more about custom logging: https://github.com/octokit/core.js#logging
-app.octokit.log.debug(`Authenticated as '${data.name}'`);
+console.log(`Authenticated as '${data.name}'`);
 
 // Subscribe to the "pull_request.opened" webhook event
-app.webhooks.on("pull_request.opened", async ({ octokit, payload }) => {
-  console.log(
-    `Received a pull request event for #${payload.pull_request.number}`
-  );
-  try {
-    await octokit.rest.issues.createComment({
-      owner: payload.repository.owner.login,
-      repo: payload.repository.name,
-      issue_number: payload.pull_request.number,
-      body: messageForNewPRs,
+app.webhooks.on(
+  "pull_request_review.submitted",
+  async ({ octokit, payload }) => {
+    console.log(
+      "pull_request_review.submitted",
+      JSON.stringify(payload.review, null, 2)
+    );
+    const owner = payload.repository.owner.login;
+    const repo = payload.repository.name;
+    const ref = payload.pull_request.head.ref;
+    await octokit.rest.actions.createWorkflowDispatch({
+      owner,
+      repo,
+      workflow_id: "fix-pr",
+      ref,
+      inputs: {
+        comment: payload.review.body,
+      },
     });
-  } catch (error) {
-    if (error.response) {
-      console.error(
-        `Error! Status: ${error.response.status}. Message: ${error.response.data.message}`
-      );
-    } else {
-      console.error(error);
-    }
   }
+);
+
+app.webhooks.on("pull_request_review.edited", async ({ octokit, payload }) => {
+  console.log(
+    "pull_request_review.edited",
+    JSON.stringify(payload.review, null, 2)
+  );
 });
 
+app.webhooks.on(
+  "pull_request_review_comment.created",
+  async ({ octokit, payload }) => {
+    console.log(
+      "pull_request_review_comment.created",
+      JSON.stringify(payload.comment, null, 2)
+    );
+  }
+);
+
+app.webhooks.on(
+  "pull_request_review_comment.edited",
+  async ({ octokit, payload }) => {
+    console.log(
+      "pull_request_review_comment.edited",
+      JSON.stringify(payload.comment, null, 2)
+    );
+  }
+);
 // Optional: Handle errors
 app.webhooks.onError((error) => {
   if (error.name === "AggregateError") {
