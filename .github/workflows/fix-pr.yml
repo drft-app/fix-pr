@@ -6,7 +6,7 @@ on:
       branch_name:
         required: true
         type: string
-      review_comment:
+      aider_message:
         required: true
         type: string
 
@@ -16,8 +16,9 @@ jobs:
     env:
       AIDER_YES_ALWAYS: true
       AIDER_AUTO_COMMITS: false
+      AIDER_CACHE_PROMPTS: true
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      AIDER_MESSAGE: ${{inputs.review_comment}}
+      AIDER_MESSAGE: ${{inputs.aider_message}}
     steps:
       - uses: actions/checkout@v4
       - name: Install Aider

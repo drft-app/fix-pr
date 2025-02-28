@@ -39,23 +39,32 @@ app.webhooks.on(
     const owner = payload.repository.owner.login;
     const repo = payload.repository.name;
     const ref = payload.pull_request.head.ref;
-    console.log(owner, repo, ref);
-    const workflowId = "fix-pr.yml";
-    try {
-      await octokit.rest.actions.createWorkflowDispatch({
-        owner,
-        repo,
-        workflow_id: workflowId,
-        ref,
-        inputs: {
-          comment: payload.review.body,
-        },
-      });
-    } catch (error) {
-      console.error(error);
-    }
+    await triggerWorkflow(octokit, owner, repo, ref, {
+      aider_message: payload.review.body,
+      branch_name: ref,
+    });
   }
 );
+
+const triggerWorkflow = async (
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  ref: string,
+  inputs: Record<string, string>
+) => {
+  try {
+    await octokit.rest.actions.createWorkflowDispatch({
+      owner,
+      repo,
+      workflow_id: "fix-pr.yml",
+      ref,
+      inputs,
+    });
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 app.webhooks.on("pull_request_review.edited", async ({ octokit, payload }) => {
   console.log(
