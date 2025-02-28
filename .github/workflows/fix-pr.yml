@@ -1,5 +1,4 @@
 name: Fix PR
-id: fix-pr
 
 on:
   workflow_dispatch:
