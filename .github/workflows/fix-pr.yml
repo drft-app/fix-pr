@@ -3,13 +3,28 @@ name: Fix PR
 on:
   workflow_dispatch:
     inputs:
-      comment:
+      branch_name:
+        required: true
+        type: string
+      review_comment:
         required: true
         type: string
 
 jobs:
   fix-pr:
     runs-on: ubuntu-latest
+    env:
+      AIDER_YES_ALWAYS: true
+      AIDER_AUTO_COMMITS: false
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      AIDER_MESSAGE: ${{inputs.review_comment}}
     steps:
-      - name: Echo comment
-        run: echo ${{ inputs.comment }}
+      - uses: actions/checkout@v4
+      - name: Install Aider
+        run: curl -LsSf https://aider.chat/install.sh | sh
+      - name: Run Aider
+        run: aider
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          base: ${{inputs.branch_name}}
