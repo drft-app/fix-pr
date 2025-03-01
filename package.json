@@ -9,11 +9,15 @@
     "lint": "standard"
   },
   "dependencies": {
-    "dotenv": "^16.0.3",
-    "octokit": "^4.1.1"
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.40.0",
+    "octokit": "^4.1.1",
+    "pg": "^8.13.3"
   },
   "devDependencies": {
     "@types/node": "^22.13.5",
+    "@types/pg": "^8.11.11",
+    "drizzle-kit": "^0.30.5",
     "smee-client": "^2.0.1",
     "standard": "^17.0.0",
     "tsx": "^4.19.3",
@@ -22,5 +26,10 @@
   "engines": {
     "node": ">=20.0.0",
     "pnpm": ">=10.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }
