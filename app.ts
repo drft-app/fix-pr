@@ -39,12 +39,39 @@ app.webhooks.on(
     const owner = payload.repository.owner.login;
     const repo = payload.repository.name;
     const ref = payload.pull_request.head.ref;
-    await triggerWorkflow(octokit, owner, repo, ref, {
-      aider_message: payload.review.body,
-      branch_name: ref,
-    });
+    const pull_number = payload.pull_request.number;
+
+    // Reply to the review with a checkbox comment
+    await replyToReviewWithCheckbox(octokit, owner, repo, pull_number);
+
+    // await triggerWorkflow(octokit, owner, repo, ref, {
+    //   aider_message: payload.review.body,
+    //   branch_name: ref,
+    // });
   }
 );
+
+/**
+ * Replies to a pull request review with a comment containing a checkbox
+ */
+const replyToReviewWithCheckbox = async (
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  issue_number: number
+) => {
+  try {
+    await octokit.rest.issues.createComment({
+      owner,
+      repo,
+      issue_number,
+      body: "- [ ] address this",
+    });
+    console.log(`Added checkbox comment to PR #${issue_number}`);
+  } catch (error) {
+    console.error("Error adding comment to PR:", error);
+  }
+};
 
 const triggerWorkflow = async (
   octokit: Octokit,
@@ -94,7 +121,7 @@ app.webhooks.on(
 );
 // Optional: Handle errors
 app.webhooks.onError((error) => {
-  if (error.name === "AggregateError") {
+  if ("name" in error && error.name === "AggregateError") {
     // Log Secret verification errors
     console.log(`Error processing request: ${error.event}`);
   } else {
