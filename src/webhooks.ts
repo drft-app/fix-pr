@@ -27,30 +27,35 @@ export const registerWebhooks = (webhooks: any) => {
     }
   );
 
-  webhooks.on("pull_request_review.edited", async ({ octokit, payload }: { octokit: Octokit; payload: any }) => {
-    console.log(
-      "pull_request_review.edited",
-      JSON.stringify(payload.review, null, 2)
-    );
+  webhooks.on(
+    "pull_request_review.edited",
+    async ({ octokit, payload }: { octokit: Octokit; payload: any }) => {
+      console.log(
+        "pull_request_review.edited",
+        JSON.stringify(payload.review, null, 2)
+      );
 
-    // Check if the review body contains the checked checkbox for "Address using Fix PR"
-    if (
-      payload.review.body &&
-      payload.review.body.includes("- [x] Address using Fix PR")
-    ) {
-      console.log("Checkbox is checked, triggering workflow");
+      // Check if the review body contains the checked checkbox for "Address using Fix PR"
+      if (
+        payload.review.body &&
+        payload.review.body.includes("- [x] Address using Fix PR")
+      ) {
+        console.log("Checkbox is checked, triggering workflow");
 
-      const owner = payload.repository.owner.login;
-      const repo = payload.repository.name;
-      const ref = payload.pull_request.head.ref;
+        const owner = payload.repository.owner.login;
+        const repo = payload.repository.name;
+        const ref = payload.pull_request.head.ref;
+        const comments = payload.pull_request.comments;
+        console.log("Comments:", comments);
 
-      // Trigger the workflow with the review body as the aider_message
-      await triggerWorkflow(octokit, owner, repo, ref, {
-        aider_message: payload.review.body,
-        branch_name: ref,
-      });
+        // Trigger the workflow with the review body as the aider_message
+        await triggerWorkflow(octokit, owner, repo, ref, {
+          aider_message: payload.review.body,
+          branch_name: ref,
+        });
+      }
     }
-  });
+  );
 
   webhooks.on(
     "pull_request_review_comment.created",
