@@ -28,6 +28,59 @@ const app = new App({
   }),
 });
 
+// Subscribe to the "pull_request.opened" webhook event
+app.webhooks.on(
+  "pull_request_review.submitted",
+  async ({ octokit, payload }) => {
+    console.log(
+      "pull_request_review.submitted",
+      JSON.stringify(payload.review, null, 2)
+    );
+    const owner = payload.repository.owner.login;
+    const repo = payload.repository.name;
+    const ref = payload.pull_request.head.ref;
+    const pull_number = payload.pull_request.number;
+
+    // Update the review with a checkbox appended to the end
+    await updateReviewWithCheckbox(
+      octokit,
+      owner,
+      repo,
+      pull_number,
+      payload.review.id,
+      payload.review.body || ""
+    );
+  }
+);
+
+/**
+ * Updates a pull request review by appending a checkbox to the end of the review body
+ */
+const updateReviewWithCheckbox = async (
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  pull_number: number,
+  review_id: number,
+  original_body: string
+) => {
+  try {
+    // Append the checkbox to the original review body
+    const updatedBody = original_body + "\n\n- [ ] Address using Fix PR";
+    await octokit.rest.pulls.updateReview({
+      owner,
+      repo,
+      pull_number,
+      review_id,
+      body: updatedBody,
+    });
+
+    console.log(`Updated review #${review_id} with checkbox`);
+  } catch (error) {
+    console.error("Error updating review:", error);
+  }
+};
+
 const triggerWorkflow = async (
   octokit: Octokit,
   owner: string,
