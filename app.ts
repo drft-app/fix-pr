@@ -1,8 +1,8 @@
 import dotenv from "dotenv";
 import fs from "fs";
-import http from "http";
 import { Octokit, App } from "octokit";
-import { createNodeMiddleware } from "@octokit/webhooks";
+import { registerWebhooks } from "./src/webhooks";
+import { startServer } from "./src/server";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -28,89 +28,8 @@ const app = new App({
   }),
 });
 
-// Subscribe to the "pull_request.opened" webhook event
-app.webhooks.on(
-  "pull_request_review.submitted",
-  async ({ octokit, payload }) => {
-    console.log(
-      "pull_request_review.submitted",
-      JSON.stringify(payload.review, null, 2)
-    );
-    const owner = payload.repository.owner.login;
-    const repo = payload.repository.name;
-    const ref = payload.pull_request.head.ref;
-    await triggerWorkflow(octokit, owner, repo, ref, {
-      aider_message: payload.review.body,
-      branch_name: ref,
-    });
-  }
-);
+// Register all webhook handlers
+registerWebhooks(app.webhooks);
 
-const triggerWorkflow = async (
-  octokit: Octokit,
-  owner: string,
-  repo: string,
-  ref: string,
-  inputs: Record<string, string>
-) => {
-  try {
-    await octokit.rest.actions.createWorkflowDispatch({
-      owner,
-      repo,
-      workflow_id: "fix-pr.yml",
-      ref,
-      inputs,
-    });
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-app.webhooks.on("pull_request_review.edited", async ({ octokit, payload }) => {
-  console.log(
-    "pull_request_review.edited",
-    JSON.stringify(payload.review, null, 2)
-  );
-});
-
-app.webhooks.on(
-  "pull_request_review_comment.created",
-  async ({ octokit, payload }) => {
-    console.log(
-      "pull_request_review_comment.created",
-      JSON.stringify(payload.comment, null, 2)
-    );
-  }
-);
-
-app.webhooks.on(
-  "pull_request_review_comment.edited",
-  async ({ octokit, payload }) => {
-    console.log(
-      "pull_request_review_comment.edited",
-      JSON.stringify(payload.comment, null, 2)
-    );
-  }
-);
-// Optional: Handle errors
-app.webhooks.onError((error) => {
-  if (error.name === "AggregateError") {
-    // Log Secret verification errors
-    console.log(`Error processing request: ${error.event}`);
-  } else {
-    console.log(error);
-  }
-});
-
-// Launch a web server to listen for GitHub webhooks
-const port = process.env.PORT || 3000;
-const path = "/api/webhook";
-const localWebhookUrl = `http://localhost:${port}${path}`;
-
-// See https://github.com/octokit/webhooks.js/#createnodemiddleware for all options
-const middleware = createNodeMiddleware(app.webhooks, { path });
-
-http.createServer(middleware).listen(port, () => {
-  console.log(`Server is listening for events at: ${localWebhookUrl}`);
-  console.log("Press Ctrl + C to quit.");
-});
+// Start the HTTP server
+startServer(app.webhooks);
