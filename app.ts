@@ -28,51 +28,6 @@ const app = new App({
   }),
 });
 
-// Subscribe to the "pull_request.opened" webhook event
-app.webhooks.on(
-  "pull_request_review.submitted",
-  async ({ octokit, payload }) => {
-    console.log(
-      "pull_request_review.submitted",
-      JSON.stringify(payload.review, null, 2)
-    );
-    const owner = payload.repository.owner.login;
-    const repo = payload.repository.name;
-    const ref = payload.pull_request.head.ref;
-    const pull_number = payload.pull_request.number;
-
-    // Reply to the review with a checkbox comment
-    await replyToReviewWithCheckbox(octokit, owner, repo, pull_number);
-
-    // await triggerWorkflow(octokit, owner, repo, ref, {
-    //   aider_message: payload.review.body,
-    //   branch_name: ref,
-    // });
-  }
-);
-
-/**
- * Replies to a pull request review with a comment containing a checkbox
- */
-const replyToReviewWithCheckbox = async (
-  octokit: Octokit,
-  owner: string,
-  repo: string,
-  issue_number: number
-) => {
-  try {
-    await octokit.rest.issues.createComment({
-      owner,
-      repo,
-      issue_number,
-      body: "- [ ] address this",
-    });
-    console.log(`Added checkbox comment to PR #${issue_number}`);
-  } catch (error) {
-    console.error("Error adding comment to PR:", error);
-  }
-};
-
 const triggerWorkflow = async (
   octokit: Octokit,
   owner: string,
@@ -98,6 +53,24 @@ app.webhooks.on("pull_request_review.edited", async ({ octokit, payload }) => {
     "pull_request_review.edited",
     JSON.stringify(payload.review, null, 2)
   );
+
+  // Check if the review body contains the checked checkbox for "Address using Fix PR"
+  if (
+    payload.review.body &&
+    payload.review.body.includes("- [x] Address using Fix PR")
+  ) {
+    console.log("Checkbox is checked, triggering workflow");
+
+    const owner = payload.repository.owner.login;
+    const repo = payload.repository.name;
+    const ref = payload.pull_request.head.ref;
+
+    // Trigger the workflow with the review body as the aider_message
+    await triggerWorkflow(octokit, owner, repo, ref, {
+      aider_message: payload.review.body,
+      branch_name: ref,
+    });
+  }
 });
 
 app.webhooks.on(
