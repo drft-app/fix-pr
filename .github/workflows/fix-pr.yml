@@ -30,17 +30,19 @@ jobs:
       - name: Run Aider
         id: run_aider
         run: |
-          # Run aider and capture its output to a file while also displaying it
-          aider | tee aider_output.txt
+          # Create a directory outside the Git repository
+          mkdir -p /tmp/aider
+          # Run aider and capture its output to a file outside the repo while also displaying it
+          aider | tee /tmp/aider/output.txt
           # Store the output as a step output
           echo "aider_output<<EOF" >> $GITHUB_OUTPUT
-          cat aider_output.txt >> $GITHUB_OUTPUT
+          cat /tmp/aider/output.txt >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
       - name: Extract Commit Message
         id: extract_commit
         run: |
           # Simply get the last line and extract the commit message
-          LAST_LINE=$(tail -n 1 aider_output.txt)
+          LAST_LINE=$(tail -n 1 /tmp/aider/output.txt)
           COMMIT_MESSAGE=$(echo "$LAST_LINE" | sed -E 's/Commit [a-f0-9]* (.*)/\1/' || echo "Fix from Aider")
           # Remove any quotes that might cause issues
           COMMIT_MESSAGE=$(echo "$COMMIT_MESSAGE" | tr -d '"')
