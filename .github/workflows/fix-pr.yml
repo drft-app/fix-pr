@@ -52,8 +52,8 @@ jobs:
         with:
           base: ${{inputs.base_branch_name}}
           branch: "fix-pr-${{inputs.base_pull_request_number}}"
-          author: Fix PR [bot]
-          committer: Fix PR [bot]
+          author: Fix PR
+          committer: Fix PR
           title: ${{steps.extract_commit.outputs.commit_message}}
           body: |
             Address review comments for PR #${{inputs.base_pull_request_number}}
