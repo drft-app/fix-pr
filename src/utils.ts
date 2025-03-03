@@ -74,7 +74,7 @@ export const triggerWorkflow = async (
   repo: string,
   ref: string,
   aider_message: string,
-  base_pull_request_number: number
+  base_pull_request_number: string
 ) => {
   const inputs = {
     base_branch_name: ref,

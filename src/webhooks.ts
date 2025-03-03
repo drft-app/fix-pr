@@ -73,7 +73,7 @@ export const registerWebhooks = (webhooks: any) => {
           repo,
           ref,
           aider_message,
-          payload.pull_request.number
+          payload.pull_request.number.toString()
         );
       }
     }

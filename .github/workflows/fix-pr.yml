@@ -11,7 +11,7 @@ on:
         type: string
       base_pull_request_number:
         required: true
-        type: number
+        type: string
 
 jobs:
   fix-pr:
@@ -28,8 +28,14 @@ jobs:
       - name: Install Aider
         run: curl -LsSf https://aider.chat/install.sh | sh
       - name: Run Aider
-        run: echo "aider_output=$(aider)" >> $GITHUB_OUTPUT
         id: run_aider
+        run: |
+          # Run aider and capture its output to a file while also displaying it
+          aider | tee aider_output.txt
+          # Store the output as a step output
+          echo "aider_output<<EOF" >> $GITHUB_OUTPUT
+          cat aider_output.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
       - name: Extract Commit Message
         id: extract_commit
         run: |
