@@ -25,6 +25,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Configure Git
+        run: |
+          git config --global user.email "1160001+fix-pr[bot]@users.noreply.github.com"
+          git config --global user.name "Fix PR[bot]"
       - name: Install Aider
         run: curl -LsSf https://aider.chat/install.sh | sh
       - name: Run Aider
@@ -54,8 +58,8 @@ jobs:
         with:
           base: ${{inputs.base_branch_name}}
           branch: "fix-pr-${{inputs.base_pull_request_number}}"
-          author: Fix PR[bot] <1160001+fix-pr[bot]@users.noreply.github.com>
-          committer: Fix PR[bot] <1160001+fix-pr[bot]@users.noreply.github.com>
+          # author: Fix PR[bot] <1160001+fix-pr[bot]@users.noreply.github.com>
+          # committer: Fix PR[bot] <1160001+fix-pr[bot]@users.noreply.github.com>
           title: ${{steps.extract_commit.outputs.commit_message}}
           body: |
             Address review comments for PR #${{inputs.base_pull_request_number}}
