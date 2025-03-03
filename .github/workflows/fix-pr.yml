@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AIDER_YES_ALWAYS: true
-      AIDER_AUTO_COMMITS: false
+      AIDER_AUTO_COMMITS: true
       AIDER_CACHE_PROMPTS: true
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       AIDER_MESSAGE: ${{inputs.aider_message}}
