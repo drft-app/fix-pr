@@ -4,23 +4,15 @@
       "name": "tsx",
       "type": "node",
       "request": "launch",
-
+      "console": "internalConsole",
+      "internalConsoleOptions": "openOnSessionStart",
       // Debug current file in VSCode
       "program": "app.ts",
-
       /*
        * Path to tsx binary
        * Assuming locally installed
        */
       "runtimeExecutable": "tsx",
-
-      /*
-       * Open terminal when debugging starts (Optional)
-       * Useful to see console.logs
-       */
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-
       // Files to exclude from debugger (e.g. call stack)
       "skipFiles": [
         // Node.js internal core modules
