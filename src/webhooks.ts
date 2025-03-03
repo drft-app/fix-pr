@@ -39,6 +39,11 @@ export const registerWebhooks = (webhooks: any) => {
         "pull_request_review.edited",
         JSON.stringify(payload.review, null, 2)
       );
+      // make sure the PR is open
+      if (payload.pull_request.state !== "open") {
+        console.log("PR is not open, skipping");
+        return;
+      }
 
       // Check if the review body contains the checked checkbox for "Address using Fix PR"
       if (
