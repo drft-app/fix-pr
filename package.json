@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch app.ts",
+    "debug": "tsx watch --inspect-brk app.ts",
     "server": "node app.js",
     "lint": "standard"
   },

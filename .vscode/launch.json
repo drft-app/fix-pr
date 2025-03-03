@@ -1,19 +1,11 @@
 {
+  "version": "0.2.0",
   "configurations": [
     {
-      "name": "tsx",
+      "name": "Attach to process",
       "type": "node",
-      "request": "launch",
-      "console": "internalConsole",
-      "internalConsoleOptions": "openOnSessionStart",
-      // Debug current file in VSCode
-      "program": "app.ts",
-      /*
-       * Path to tsx binary
-       * Assuming locally installed
-       */
-      "runtimeExecutable": "tsx",
-      // Files to exclude from debugger (e.g. call stack)
+      "request": "attach",
+      "port": 9229,
       "skipFiles": [
         // Node.js internal core modules
         "<node_internals>/**",
