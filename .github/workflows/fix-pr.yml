@@ -19,6 +19,10 @@ on:
         required: true
         type: string
 
+      author_user_name:
+        required: true
+        type: string
+
 jobs:
   fix-pr:
     runs-on: ubuntu-latest
@@ -68,6 +72,7 @@ jobs:
           branch: "${{inputs.base_branch_name}}-fix-${{inputs.review_id}}"
           author: "${{env.GIT_USER_NAME}} <${{env.GIT_USER_EMAIL}}>"
           committer: "${{env.GIT_USER_NAME}} <${{env.GIT_USER_EMAIL}}>"
+          reviewers: ${{inputs.author_user_name}}
           title: ${{steps.extract_commit.outputs.commit_message}}
           body: |
             Address [review comment][1] for PR #${{inputs.base_pull_request_number}}

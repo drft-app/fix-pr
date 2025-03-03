@@ -74,7 +74,8 @@ export const registerWebhooks = (webhooks: any) => {
           ref,
           aider_message,
           payload.pull_request.number.toString(),
-          payload.review.id.toString()
+          payload.review.id.toString(),
+          payload.pull_request.user.login
         );
       }
     }
