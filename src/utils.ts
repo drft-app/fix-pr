@@ -72,8 +72,10 @@ export const buildAiderPrompt = (
     body: string;
   }[]
 ) => {
+  // strip the "Address using Fix PR" from the overall_comment
+
   const aider_message = `
-  ${overall_comment}\n
+  ${overall_comment.replace("- [x] Address using Fix PR", "")}\n
   ${comments
     .map(
       (comment) =>
