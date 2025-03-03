@@ -74,12 +74,14 @@ export const triggerWorkflow = async (
   repo: string,
   ref: string,
   aider_message: string,
-  base_pull_request_number: string
+  base_pull_request_number: string,
+  review_id: string
 ) => {
   const inputs = {
     base_branch_name: ref,
     aider_message: aider_message,
     base_pull_request_number: base_pull_request_number,
+    review_id: review_id,
   };
   console.log("Triggering workflow with inputs:", inputs);
   try {
