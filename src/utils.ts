@@ -61,5 +61,25 @@ export const getReviewComments = async (
     pull_number,
     review_id: review_id,
   });
-  return comments;
+  return comments.data;
+};
+
+export const buildAiderPrompt = (
+  overall_comment: string,
+  comments: {
+    path: string;
+    position: number;
+    body: string;
+  }[]
+) => {
+  const aider_message = `
+  ${overall_comment}\n
+  ${comments
+    .map(
+      (comment) =>
+        `For file ${comment.path}, at line ${comment.position}: ${comment.body}`
+    )
+    .join("\n")}
+  `;
+  return aider_message;
 };

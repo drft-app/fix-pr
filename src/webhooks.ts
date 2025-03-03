@@ -3,6 +3,7 @@ import {
   updateReviewWithCheckbox,
   triggerWorkflow,
   getReviewComments,
+  buildAiderPrompt,
 } from "./utils";
 
 export const registerWebhooks = (webhooks: any) => {
@@ -38,14 +39,6 @@ export const registerWebhooks = (webhooks: any) => {
         "pull_request_review.edited",
         JSON.stringify(payload.review, null, 2)
       );
-      const comments = await getReviewComments(
-        octokit,
-        payload.repository.owner.login,
-        payload.repository.name,
-        payload.pull_request.number,
-        payload.review.id
-      );
-      console.log("Comments:", comments);
 
       // Check if the review body contains the checked checkbox for "Address using Fix PR"
       if (
@@ -57,10 +50,20 @@ export const registerWebhooks = (webhooks: any) => {
         const owner = payload.repository.owner.login;
         const repo = payload.repository.name;
         const ref = payload.pull_request.head.ref;
-
+        const comments = await getReviewComments(
+          octokit,
+          payload.repository.owner.login,
+          payload.repository.name,
+          payload.pull_request.number,
+          payload.review.id
+        );
+        console.log("Comments:", comments);
+        // build prompt for aider
+        const aider_message = buildAiderPrompt(payload.review.body, comments);
+        console.log("aider_message:", aider_message);
         // Trigger the workflow with the review body as the aider_message
         await triggerWorkflow(octokit, owner, repo, ref, {
-          aider_message: payload.review.body,
+          aider_message: aider_message,
           branch_name: ref,
         });
       }
