@@ -67,10 +67,14 @@ export const registerWebhooks = (webhooks: any) => {
         const aider_message = buildAiderPrompt(payload.review.body, comments);
         console.log("aider_message:", aider_message);
         // Trigger the workflow with the review body as the aider_message
-        await triggerWorkflow(octokit, owner, repo, ref, {
-          aider_message: aider_message,
-          branch_name: ref,
-        });
+        await triggerWorkflow(
+          octokit,
+          owner,
+          repo,
+          ref,
+          aider_message,
+          payload.pull_request.number
+        );
       }
     }
   );
