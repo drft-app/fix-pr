@@ -33,7 +33,11 @@ export const triggerWorkflow = async (
   owner: string,
   repo: string,
   ref: string,
-  inputs: Record<string, string>
+  inputs: {
+    base_branch_name: string;
+    aider_message: string;
+    base_pull_request_number: number;
+  }
 ) => {
   try {
     await octokit.rest.actions.createWorkflowDispatch({

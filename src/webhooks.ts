@@ -69,7 +69,8 @@ export const registerWebhooks = (webhooks: any) => {
         // Trigger the workflow with the review body as the aider_message
         await triggerWorkflow(octokit, owner, repo, ref, {
           aider_message: aider_message,
-          branch_name: ref,
+          base_branch_name: payload.pull_request.base.ref,
+          base_pull_request_number: payload.pull_request.number,
         });
       }
     }
