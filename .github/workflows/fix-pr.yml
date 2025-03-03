@@ -39,9 +39,14 @@ jobs:
       - name: Extract Commit Message
         id: extract_commit
         run: |
-          AIDER_OUTPUT="${{ steps.run_aider.outputs.aider_output }}"
-          COMMIT_MESSAGE=$(echo "$AIDER_OUTPUT" | grep -o "Commit [a-f0-9]* .*" | sed 's/Commit [a-f0-9]* //')
+          # Simply get the last line and extract the commit message
+          LAST_LINE=$(tail -n 1 aider_output.txt)
+          COMMIT_MESSAGE=$(echo "$LAST_LINE" | sed -E 's/Commit [a-f0-9]* (.*)/\1/' || echo "Fix from Aider")
+          # Remove any quotes that might cause issues
+          COMMIT_MESSAGE=$(echo "$COMMIT_MESSAGE" | tr -d '"')
           echo "commit_message=$COMMIT_MESSAGE" >> $GITHUB_OUTPUT
+          # For debugging
+          echo "Extracted commit message: $COMMIT_MESSAGE"
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
