@@ -11,21 +11,23 @@ export const registerWebhooks = (webhooks: any) => {
   webhooks.on(
     "pull_request_review.submitted",
     async ({ octokit, payload }: { octokit: Octokit; payload: any }) => {
-      console.log(
-        "pull_request_review.submitted",
-        JSON.stringify(payload.review, null, 2)
-      );
-      const owner = payload.repository.owner.login;
-      const repo = payload.repository.name;
-      const ref = payload.pull_request.head.ref;
-      const pull_number = payload.pull_request.number;
-
+      // check if the review has body
+      if (!payload.review.body) {
+        console.log("Review has no body, skipping");
+        return;
+      }
+      // check if the review is approved
+      const review_type = payload.review.state;
+      if (review_type === "approved") {
+        console.log("Review is approved, skipping");
+        return;
+      }
       // Update the review with a checkbox appended to the end
       await updateReviewWithCheckbox(
         octokit,
-        owner,
-        repo,
-        pull_number,
+        payload.repository.owner.login,
+        payload.repository.name,
+        payload.pull_request.number,
         payload.review.id,
         payload.review.body || ""
       );
