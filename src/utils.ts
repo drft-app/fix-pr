@@ -67,21 +67,23 @@ export const getReviewComments = async (
 export const buildAiderPrompt = (
   overall_comment: string,
   comments: {
-    path: string;
-    position: number;
     body: string;
+    path: string;
+    line?: number;
   }[]
 ) => {
   // strip the "Address using Fix PR" from the overall_comment
-
-  const aider_message = `
-  ${overall_comment.replace("- [x] Address using Fix PR", "")}\n
-  ${comments
+  const overall_comment_without_checkbox = overall_comment.replace(
+    "- [x] Address using Fix PR",
+    ""
+  );
+  const file_comments = comments
     .map(
       (comment) =>
-        `For file ${comment.path}, at line ${comment.position}: ${comment.body}`
+        `For file ${comment.path}${
+          comment.line ? `, line ${comment.line}` : ""
+        }: ${comment.body}`
     )
-    .join("\n")}
-  `;
-  return aider_message;
+    .join("\n");
+  return `${overall_comment_without_checkbox}\n${file_comments}`;
 };
