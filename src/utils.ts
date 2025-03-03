@@ -47,3 +47,41 @@ export const triggerWorkflow = async (
     console.error(error);
   }
 };
+
+export const getReviewComments = async (
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  pull_number: number,
+  review_id: number
+) => {
+  const comments = await octokit.rest.pulls.listCommentsForReview({
+    owner,
+    repo,
+    pull_number,
+    review_id: review_id,
+  });
+  return comments.data;
+};
+
+export const buildAiderPrompt = (
+  overall_comment: string,
+  comments: {
+    path: string;
+    position: number;
+    body: string;
+  }[]
+) => {
+  // strip the "Address using Fix PR" from the overall_comment
+
+  const aider_message = `
+  ${overall_comment.replace("- [x] Address using Fix PR", "")}\n
+  ${comments
+    .map(
+      (comment) =>
+        `For file ${comment.path}, at line ${comment.position}: ${comment.body}`
+    )
+    .join("\n")}
+  `;
+  return aider_message;
+};

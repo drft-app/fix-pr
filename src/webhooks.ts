@@ -1,5 +1,10 @@
 import { Octokit } from "octokit";
-import { updateReviewWithCheckbox, triggerWorkflow } from "./utils";
+import {
+  updateReviewWithCheckbox,
+  triggerWorkflow,
+  getReviewComments,
+  buildAiderPrompt,
+} from "./utils";
 
 export const registerWebhooks = (webhooks: any) => {
   // Subscribe to the "pull_request.opened" webhook event
@@ -27,30 +32,43 @@ export const registerWebhooks = (webhooks: any) => {
     }
   );
 
-  webhooks.on("pull_request_review.edited", async ({ octokit, payload }: { octokit: Octokit; payload: any }) => {
-    console.log(
-      "pull_request_review.edited",
-      JSON.stringify(payload.review, null, 2)
-    );
+  webhooks.on(
+    "pull_request_review.edited",
+    async ({ octokit, payload }: { octokit: Octokit; payload: any }) => {
+      console.log(
+        "pull_request_review.edited",
+        JSON.stringify(payload.review, null, 2)
+      );
 
-    // Check if the review body contains the checked checkbox for "Address using Fix PR"
-    if (
-      payload.review.body &&
-      payload.review.body.includes("- [x] Address using Fix PR")
-    ) {
-      console.log("Checkbox is checked, triggering workflow");
+      // Check if the review body contains the checked checkbox for "Address using Fix PR"
+      if (
+        payload.review.body &&
+        payload.review.body.includes("- [x] Address using Fix PR")
+      ) {
+        console.log("Checkbox is checked, triggering workflow");
 
-      const owner = payload.repository.owner.login;
-      const repo = payload.repository.name;
-      const ref = payload.pull_request.head.ref;
-
-      // Trigger the workflow with the review body as the aider_message
-      await triggerWorkflow(octokit, owner, repo, ref, {
-        aider_message: payload.review.body,
-        branch_name: ref,
-      });
+        const owner = payload.repository.owner.login;
+        const repo = payload.repository.name;
+        const ref = payload.pull_request.head.ref;
+        const comments = await getReviewComments(
+          octokit,
+          payload.repository.owner.login,
+          payload.repository.name,
+          payload.pull_request.number,
+          payload.review.id
+        );
+        console.log("Comments:", comments);
+        // build prompt for aider
+        const aider_message = buildAiderPrompt(payload.review.body, comments);
+        console.log("aider_message:", aider_message);
+        // Trigger the workflow with the review body as the aider_message
+        await triggerWorkflow(octokit, owner, repo, ref, {
+          aider_message: aider_message,
+          branch_name: ref,
+        });
+      }
     }
-  });
+  );
 
   webhooks.on(
     "pull_request_review_comment.created",
