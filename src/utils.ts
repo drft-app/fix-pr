@@ -28,30 +28,6 @@ export const updateReviewWithCheckbox = async (
   }
 };
 
-export const triggerWorkflow = async (
-  octokit: Octokit,
-  owner: string,
-  repo: string,
-  ref: string,
-  inputs: {
-    base_branch_name: string;
-    aider_message: string;
-    base_pull_request_number: number;
-  }
-) => {
-  try {
-    await octokit.rest.actions.createWorkflowDispatch({
-      owner,
-      repo,
-      workflow_id: "fix-pr.yml",
-      ref,
-      inputs,
-    });
-  } catch (error) {
-    console.error(error);
-  }
-};
-
 export const getReviewComments = async (
   octokit: Octokit,
   owner: string,
@@ -90,4 +66,31 @@ export const buildAiderPrompt = (
     )
     .join("\n");
   return `${overall_comment_without_checkbox}\n${file_comments}`;
+};
+
+export const triggerWorkflow = async (
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  ref: string,
+  aider_message: string,
+  base_pull_request_number: number
+) => {
+  const inputs = {
+    base_branch_name: ref,
+    aider_message: aider_message,
+    base_pull_request_number: base_pull_request_number,
+  };
+  console.log("Triggering workflow with inputs:", inputs);
+  try {
+    await octokit.rest.actions.createWorkflowDispatch({
+      owner,
+      repo,
+      workflow_id: "fix-pr.yml",
+      ref,
+      inputs,
+    });
+  } catch (error) {
+    console.error(error);
+  }
 };
