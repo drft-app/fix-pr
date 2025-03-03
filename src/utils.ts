@@ -47,3 +47,19 @@ export const triggerWorkflow = async (
     console.error(error);
   }
 };
+
+export const getReviewComments = async (
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  pull_number: number,
+  review_id: number
+) => {
+  const comments = await octokit.rest.pulls.listCommentsForReview({
+    owner,
+    repo,
+    pull_number,
+    review_id: review_id,
+  });
+  return comments;
+};

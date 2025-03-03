@@ -1,5 +1,9 @@
 import { Octokit } from "octokit";
-import { updateReviewWithCheckbox, triggerWorkflow } from "./utils";
+import {
+  updateReviewWithCheckbox,
+  triggerWorkflow,
+  getReviewComments,
+} from "./utils";
 
 export const registerWebhooks = (webhooks: any) => {
   // Subscribe to the "pull_request.opened" webhook event
@@ -34,6 +38,14 @@ export const registerWebhooks = (webhooks: any) => {
         "pull_request_review.edited",
         JSON.stringify(payload.review, null, 2)
       );
+      const comments = await getReviewComments(
+        octokit,
+        payload.repository.owner.login,
+        payload.repository.name,
+        payload.pull_request.number,
+        payload.review.id
+      );
+      console.log("Comments:", comments);
 
       // Check if the review body contains the checked checkbox for "Address using Fix PR"
       if (
@@ -45,8 +57,6 @@ export const registerWebhooks = (webhooks: any) => {
         const owner = payload.repository.owner.login;
         const repo = payload.repository.name;
         const ref = payload.pull_request.head.ref;
-        const comments = payload.pull_request.comments;
-        console.log("Comments:", comments);
 
         // Trigger the workflow with the review body as the aider_message
         await triggerWorkflow(octokit, owner, repo, ref, {
