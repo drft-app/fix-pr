@@ -42,6 +42,31 @@ by major cloud providers:
 [Google Secret Manager](https://cloud.google.com/nodejs/docs/reference/secret-manager/latest),
 etc.
 
+## Node.js Version Management
+
+This project requires Node.js 20 or higher. We've included configuration files to help you automatically use the correct version:
+
+- `.nvmrc` - For [nvm](https://github.com/nvm-sh/nvm) users
+- `.node-version` - For [volta](https://volta.sh/) and other version managers
+
+### Using nvm
+
+If you have nvm installed, you can automatically switch to the required Node.js version by running:
+
+```bash
+nvm use
+```
+
+If you don't have the required version installed, nvm will prompt you to install it:
+
+```bash
+nvm install
+```
+
+### Using volta
+
+If you have volta installed, it will automatically use the correct Node.js version when you run commands in this directory.
+
 ## Last Updated
 
 February 28, 2025  
