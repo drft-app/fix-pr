@@ -18,6 +18,9 @@ importers:
       '@types/node':
         specifier: ^22.13.5
         version: 22.13.5
+      esbuild:
+        specifier: ^0.25.0
+        version: 0.25.0
       smee-client:
         specifier: ^2.0.1
         version: 2.0.4
