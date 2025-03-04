@@ -1,12 +1,14 @@
 {
-  "module": "node16",
-  "moduleResolution": "node16",
   "compilerOptions": {
     // Treat files as modules even if it doesn't use import/export
     "moduleDetection": "force",
 
-    // Ignore module structure
-    "module": "Preserve",
+    // Module settings
+    "module": "node16",
+    "moduleResolution": "node16",
+
+    // Output directory for compiled files
+    "outDir": "./dist",
 
     // Allow JSON modules to be imported
     "resolveJsonModule": true,
