@@ -7,6 +7,7 @@
     "dev": "tsx watch app.ts",
     "debug": "tsx watch app.ts --inspect-brk",
     "server": "node app.js",
+    "start": "tsx app.ts",
     "lint": "standard"
   },
   "dependencies": {
@@ -22,6 +23,6 @@
   },
   "engines": {
     "node": ">=20.0.0",
-    "pnpm": ">=10.0.0"
+    "pnpm": ">=9.0.0"
   }
 }

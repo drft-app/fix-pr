@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-import fs from "fs";
 import { Octokit, App } from "octokit";
 import { registerWebhooks } from "./src/webhooks";
 import { startServer } from "./src/server";
@@ -9,8 +8,7 @@ dotenv.config();
 
 // Set configured values
 const appId = process.env.APP_ID!;
-const privateKeyPath = process.env.PRIVATE_KEY_PATH!;
-const privateKey = fs.readFileSync(privateKeyPath, "utf8");
+const privateKey = process.env.PRIVATE_KEY!;
 const secret = process.env.WEBHOOK_SECRET!;
 const enterpriseHostname = process.env.ENTERPRISE_HOSTNAME;
 
